@@ -23,13 +23,14 @@ Definované třídy
 import dbg; dbg.start_mod(2, __name__)
 ############################################################################
 
-from abc      import abstractmethod
-from typing   import Callable, Protocol
+from typing   import Callable, Protocol, runtime_checkable
 from ..api    import BasicActions
+
 
 
 ############################################################################
 
+@runtime_checkable
 class INamed(Protocol):
     """Instance představují objekty v prostorech či batohu.
     """
@@ -56,7 +57,8 @@ class INamed(Protocol):
 
 ############################################################################
 
-class IItem(INamed):
+@runtime_checkable
+class IItem(INamed, Protocol):
     """Instance představují h-objekty v prostorech či batohu.
     """
 
@@ -76,6 +78,7 @@ class IItem(INamed):
 
 ############################################################################
 
+@runtime_checkable
 class IItemContainer(Protocol):
     """Instance představují kontejnery objektů - prostory či batoh.
     V kontejneru může být několik objektů se shodným názvem.
@@ -129,7 +132,8 @@ class IItemContainer(Protocol):
 
 ############################################################################
 
-class IBag(IItemContainer):
+@runtime_checkable
+class IBag(IItemContainer, Protocol):
     """Instance představuje úložiště,
     do nějž hráči ukládají objekty sebrané v jednotlivých prostorech,
     aby je mohli přenést do jiných prostorů a/nebo použít.
@@ -160,7 +164,8 @@ class IBag(IItemContainer):
 
 ############################################################################
 
-class IPlace(INamed, IItemContainer):
+@runtime_checkable
+class IPlace(INamed, IItemContainer, Protocol):
     """Instance představují prostory, mezi nimiž hráč přechází.
     Prostory jsou definovány jako pojmenované kontejnery objektů.
     Prostory mohou obsahovat různé objekty,
@@ -212,6 +217,7 @@ class IPlace(INamed, IItemContainer):
 
 ############################################################################
 
+@runtime_checkable
 class IWorld(Protocol):
     """Instance vystupuje v roli správce světa hry a jeho prostorů.
     Má na starosti vzájemné propojení jednotlivých prostorů
@@ -254,6 +260,7 @@ class IWorld(Protocol):
 
 ############################################################################
 
+@runtime_checkable
 class IActionManager(Protocol):
     """Reprezentuje správce akcí, který řídí celkové chování
     v závislosti na tom, je-li hra právě aktivní a rozhoduje,
@@ -293,7 +300,8 @@ class IActionManager(Protocol):
 
 ############################################################################
 
-class IAction(INamed):
+@runtime_checkable
+class IAction(INamed, Protocol):
     """Společná rodičovská třída všech akcí.
     """
 
@@ -326,6 +334,7 @@ class IAction(INamed):
 
 ############################################################################
 
+@runtime_checkable
 class IGame(Protocol):
     """Instance má na starosti řízení hry a komunikaci s uživatelem.
     Je schopna akceptovat zadávané příkazy a poskytovat informace
@@ -355,14 +364,27 @@ class IGame(Protocol):
         raise Exception(f'Ještě není plně implementováno')
 
 
+    def basic_actions(self) -> BasicActions:
+        """Vrátí přepravku s názvy povinných akcí.
+        """
+        raise Exception(f'Ještě není plně implementováno')
+
+
     def all_actions(self) -> tuple[IAction]:
         """Vrátí n-tici všech akcí použitelných ve hře.
         """
         raise Exception(f'Ještě není plně implementováno')
 
 
-    def basic_actions(self) -> BasicActions:
-        """Vrátí přepravku s názvy povinných akcí.
+    def conditions(self) -> dict[str, object]:
+        """Vrátí slovník s aktuálním nastavením příznaků.
+        """
+        raise Exception(f'Ještě není plně implementováno')
+
+
+    def tests(self) -> dict[str, object]:
+        """Vrátí slovník jehož hodnotami jsou testovací funkce
+        ověřující platnost vstupních podmínek pomocných akcí.
         """
         raise Exception(f'Ještě není plně implementováno')
 
@@ -379,16 +401,10 @@ class IGame(Protocol):
         raise Exception(f'Ještě není plně implementováno')
 
 
-    def conditions(self) -> dict[str, object]:
-        """Vrátí slovník s aktuálním nastavením příznaků.
-        """
-        raise Exception(f'Ještě není plně implementováno')
-
-
-
 
 ###########################################################################q
 
+@runtime_checkable
 class IAuthor(Protocol):
     """Protokol `IAuthor` deklaruje požadované vlastnosti objektů,
     které na požádání dodají ID a jméno autora/autorky programu.
@@ -419,7 +435,8 @@ class IAuthor(Protocol):
 
 ###########################################################################q
 
-class IPortal(IAuthor):
+@runtime_checkable
+class IPortal(IAuthor, Protocol):
 
     def NAME_2_SCENARIO(self):
         """Vrátí odkaz na slovník převádějící názvy scénářů na dané scénáře

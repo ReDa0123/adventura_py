@@ -25,6 +25,19 @@ BasicActions = namedtuple('BasicActions',
     'MOVE_NAME PUT_DOWN_NAME TAKE_NAME HELP_NAME END_NAME SUCCESS_NAME')
 BasicActions.__doc__ = """Přepravka s názvy povinných akcí."""
 
+# @dbg.prSEd()
+def BA_eq(self, other) -> bool:
+    """Porovná atributy argumentů bez ohledu na velikost písmen."""
+    if not isinstance(other, BasicActions):  return False
+    return((self.MOVE_NAME    .lower() == other.MOVE_NAME    .lower())  and
+           (self.PUT_DOWN_NAME.lower() == other.PUT_DOWN_NAME.lower())  and
+           (self.TAKE_NAME    .lower() == other.TAKE_NAME    .lower())  and
+           (self.HELP_NAME    .lower() == other.HELP_NAME    .lower())  and
+           (self.END_NAME     .lower() == other.END_NAME     .lower())  and
+           (self.SUCCESS_NAME .lower() == other.SUCCESS_NAME .lower())  )
+# BasicActions.__eq__ = __eq__;
+# del __eq__
+
 
 
 ############################################################################

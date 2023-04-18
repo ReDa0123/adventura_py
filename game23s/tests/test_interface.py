@@ -22,8 +22,7 @@ v1H - Testuje se, že hra úspěšně projde všemi čtyřmi základními scén�
 zXY - Testuje se úspěšné zapracování modifikace požadované na obhajobě,
       kde XY identifikuje jednotlivá zadání
 """
-import dbg
-dbg.start_mod(2, __name__)
+import dbg; dbg.start_mod(2, __name__)
 ############################################################################
 
 import traceback
@@ -48,6 +47,8 @@ from  .visitor          import Visitor
 # Bude-li se testovat hra
 # from .test_game import test_game_from
 
+PRINT_PAUSE = 0.1   # Počet sekund mezi tiskem zprávy a vyhozením výjimky
+
 
 
 ############################################################################
@@ -57,6 +58,8 @@ def ERROR(message:str):
     """
     from .common.texts import N_BEFORE_N, N_AFTER_N
     print(f'{N_BEFORE_N}{message}{N_AFTER_N}')
+    from time import sleep
+    sleep(PRINT_PAUSE)
     raise Exception(f'{_autor_both}\n{message}')
 
 
@@ -82,13 +85,16 @@ def test(portal:IPortal, level:Level, visitor_class:type=Visitor) -> bool:
     - Scénáře jsou definované konzistentně.
     - Hru je možno odehrát podle definovaných scénářů.
     """
-    # dbg.prIN(1, f'=== {portal.__name__ = }')
-    reinit()
+    # dbg.prIN(1, f'=== {portal.__name__ = }')    reinit()
     global _portal, result
     _portal     = portal
     _start_time = f'{datetime.now()}'
     errors      = False
     result      = True
+
+    if not isinstance(portal, IPortal):
+        ERROR(f'Zadaný portál {portal}\n'
+              f'neimplementuje protokol game23s.api.interfaces.IPortal')
     try:
         epilog = f'{_start_time} - Vyhořel při verifikací autora a balíčku'
         _verify_author()
@@ -116,6 +122,10 @@ def test(portal:IPortal, level:Level, visitor_class:type=Visitor) -> bool:
             # Budou se testovat scénáře
             from .test_scenario import test_scenarios_from
             result = test_scenarios_from(portal, level)
+
+        if level >= Level.ARCHITECTURE:
+            from .test_architecture import test_architecture_from
+            test_architecture_from(portal, level)
 
         if level >= Level.START:
             # Bude se testovat také hra

@@ -95,7 +95,7 @@ def test_scenarios_from(portal:IPortal, level:Level=99) -> str:
     return results
 
     # end_step   = happy.steps[-1]
-    # ss = ScenariosSummary(_portal, ok,
+    # ss = ScenariosSummaryScenariosSummaryScenariosSummary(_portal, ok,
     #     _all_mentioned_places, _all_entered_actions, _all_seen_items,
     #     _start_step, end_step, _derive_basic_actions(),
     #     _ns_actions_by_args, _scenarios, results
