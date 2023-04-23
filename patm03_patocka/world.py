@@ -18,6 +18,7 @@ class ANamed:
         """Inicializuje objekt zadaným názvem.
         """
         self._name = name
+        super().__init__(**args)
 
     @property
     def name(self) -> str:
@@ -28,7 +29,7 @@ class ANamed:
     def __str__(self) -> str:
         """Vrátí uživatelský textový podpis jako název dané instance.
         """
-        raise self.name
+        return self.name
 
 
 ############################################################################
@@ -60,6 +61,7 @@ class AItemContainer:
         """Zapamatuje si názvy výchozí sady objektů na počátku hry.
         """
         self.initial_item_names = initial_item_names
+        super().__init__(**args)
 
     def initialize(self) -> None:
         """Inicializuje kontejner na počátku hry.
@@ -69,31 +71,45 @@ class AItemContainer:
         Musí se jen dbát na to, aby se v obou seznamech vyskytoval objekt
         a jeho název na pozicích se stejným indexem.
         """
-        raise Exception(f'Ještě není plně implementováno')
+        self._items = []
+        self._item_names = []
+        for item_name in self.initial_item_names:
+            item = Item(name=item_name)
+            self._items.append(item)
+            self._item_names.append(item_name.lower())
 
     @property
     def items(self) -> list[Item]:
         """Vrátí n-tici objektů v daném kontejneru.
         """
-        raise Exception(f'Ještě není plně implementováno')
+        return self._items
 
     def item(self, name: str) -> Item:
         """Je-li v kontejneru objekt se zadaným názvem, vrátí jej,
         jinak vrátí None.
         """
-        raise Exception(f'Ještě není plně implementováno')
+        name_lower = name.lower()
+        if name_lower in self._item_names:
+            return self._items[self._item_names.index(name_lower)]
+        return None
 
     def add_item(self, item: Item) -> bool:
         """Přidá zadaný objekt do kontejneru a vrátí informaci o tom,
         jestli se to podařilo.
         """
-        raise Exception(f'Ještě není plně implementováno')
+        self._items.append(item)
+        self._item_names.append(item.name.lower())
+        return True
 
     def remove_item(self, item_name: str) -> Item:
         """Pokusí se odebrat objekt se zadaným názvem z kontejneru.
         Vrátí odkaz na zadaný objekt nebo None.
         """
-        raise Exception(f'Ještě není plně implementováno')
+        item = self.item(item_name)
+        if item:
+            self._items.remove(item)
+            self._item_names.remove(item.name.lower())
+        return item
 
 
 ############################################################################
@@ -119,7 +135,7 @@ class Bag(AItemContainer):
         """Inicializuje batoh na počátku hry. Vedle inicializace obsahu
         inicializuje i informaci o zbývající kapacitě.
         """
-        raise Exception(f'Ještě není plně implementováno')
+        super().initialize()
 
     @property
     def capacity(self) -> int:
@@ -153,7 +169,13 @@ class Place(ANamed, AItemContainer):
         """Inicializuje prostor na počátku hry,
         tj. nastaví počáteční sadu sousedů a objektů v prostoru.
         """
-        raise Exception(f'Ještě není plně implementováno')
+        global _all_places
+        self._neighbors = tuple()
+        for name in self._initial_neighbor_names:
+            print(f'Place.initialize: {name}')
+            self._neighbors += (_all_places[name],)
+
+        super().initialize()
 
     @property
     def description(self) -> str:
@@ -167,7 +189,7 @@ class Place(ANamed, AItemContainer):
         tj. prostorů, do nichž je možno se z tohoto prostoru přesunout
         příkazem typu `TypeOfStep.GOTO`.
         """
-        raise Exception(f'Ještě není plně implementováno')
+        return self._neighbors
 
     @property
     def name_2_neighbor(self) -> tuple['Place']:
@@ -185,7 +207,29 @@ def initialize() -> None:
         propojení jednotlivých prostorů a jejich výchozí obsah,
         nastaví výchozí aktuální prostor a inicializuje batoh.
         """
-    raise Exception(f'Ještě není plně implementováno')
+    global _current_place, _all_places
+    auto = Place(
+        name='auto',
+        description='auto - vaše auto bez benzínu, hlídá ho tvůj parťák.',
+        initial_neighbor_names=('křižovatka',),
+        initial_item_names=("žebřík",),
+    )
+    _all_places['auto'] = auto
+    krizovatka = Place(
+        name='křižovatka',
+        description='křižovatka - poměrně rozlehlé pustá křižovatky.\n'
+        'Stojí zde  opuštěné auto a uzavčené dveře do tunelu.\n'
+        'Je odsud vidět i balkón, ale ten je moc vysoko.',
+        initial_neighbor_names=('auto',),
+        initial_item_names=()
+    )
+    _all_places['křižovatka'] = krizovatka
+
+    for pl in _all_places.values():
+        pl.initialize()
+
+    _current_place = auto
+    BAG.initialize()
 
 
 def current_place() -> Place:
@@ -199,14 +243,16 @@ def places() -> tuple[Place]:
     """Vrátí n-tici odkazů na všechny prostory ve hře
         včetně těch aktuálně nedosažitelných či neaktivních.
         """
-    raise Exception(f'Ještě není plně implementováno')
+    return tuple(_all_places.values())
 
 
 def place(name: str) -> Place:
     """Vrátí prostor se zadaným názvem.
         Pokud ve hře takový není, vrátí None.
         """
-    raise Exception(f'Ještě není plně implementováno')
+    if name not in _all_places:
+        return None
+    return _all_places[name]
 
 
 ###########################################################################q
@@ -214,6 +260,7 @@ def place(name: str) -> Place:
 BAG: Bag | None = None
 BAG = Bag(())
 _current_place: Place | None = None
+_all_places: dict[str, Place] = {}
 
 ###########################################################################q
 dbg.stop_mod(1, __name__)

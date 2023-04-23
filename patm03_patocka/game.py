@@ -17,26 +17,30 @@ def is_alive() -> bool:
        Spuštěnou hru není možno pustit znovu.
        Chceme-li hru spustit znovu, musíme ji nejprve ukončit.
     """
-    return False
+    from .actions import is_alive as alive
+    return alive()
 
 
 def execute_command(command: str) -> str:
     """Zpracuje zadaný příkaz a vrátí text zprávy pro uživatele.
     """
-    from .patm03_scenarios import START_STEP
-    return START_STEP.message
+    from .actions import execute_command
+    return execute_command(command)
 
 
 def stop() -> None:
     """Ukončí hru a uvolní alokované prostředky.
        Zadáním prázdného příkazu lze následně spustit hru znovu.
     """
+    from .actions import stop
+    stop()
 
 
 def all_actions() -> tuple[IAction]:
     """Vrátí n-tici všech akcí použitelných ve hře.
     """
-    raise Exception(f'Ještě není plně implementováno')
+    from .actions import command_name_2_action
+    return tuple(command_name_2_action.values())
 
 
 def basic_actions() -> BasicActions:
@@ -62,7 +66,8 @@ def bag() -> IBag:
 def world() -> IWorld:
     """Vrátí odkaz na svět hry.
     """
-    raise Exception(f'Ještě není plně implementováno')
+    from . import world
+    return world
 
 
 def conditions() -> dict[str, object]:
@@ -76,7 +81,7 @@ def tests() -> dict[str, object]:
     """Vrátí slovník jehož hodnotami jsou testovací funkce
         ověřující platnost vstupních podmínek pomocných akcí.
         """
-    raise Exception(f'Ještě není plně implementováno')
+    return {}
 
 
 ###########################################################################q
