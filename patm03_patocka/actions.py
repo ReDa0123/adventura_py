@@ -19,9 +19,13 @@ def execute_command(command: str) -> str:
     rozhodne, která akce dostane na starost jeho zpracování.
     Vrátí odpověď hry na zadaný příkaz.
     """
-    command_split = command.split()
+    command_split = command.lower().split()
     if len(command_split) == 0:
         return command_name_2_action[''].execute([])
+
+    if not is_alive():
+        from .patm03_scenarios import WRONG_START
+        return WRONG_START.message
 
     action_name = command_split[0]
     if action_name not in command_name_2_action:
@@ -35,7 +39,7 @@ def is_alive() -> bool:
     Spuštěnou hru není možno pustit znovu.
     Chceme-li hru spustit znovu, musíme ji nejprve ukončit.
     """
-    return alive
+    return _alive
 
 
 def conditions() -> dict[str, object]:
@@ -47,16 +51,27 @@ def conditions() -> dict[str, object]:
 def _initialize():
     """V rámci startu hry inicializuje všechny potřebné objekty.
     """
-    global _flags, alive
+    from .world import initialize as world_initialize
+    world_initialize()
+
+    global _flags, _alive
     _flags = START_STEP.sets
-    alive = True
+    _alive = True
+
 
 def stop() -> None:
     """Ukončí hru.
     Zadáním prázdného příkazu lze následně spustit hru znovu.
     """
-    global alive
-    alive = False
+    global _alive
+    _alive = False
+
+
+def tests() -> dict[str, object]:
+    """Vrátí slovník jehož hodnotami jsou testovací funkce
+    ověřující platnost vstupních podmínek pomocných akcí.
+    """
+    return {}
 
 
 ############################################################################
@@ -93,26 +108,23 @@ class Action(ANamed):
 
 
 _flags: dict[str, object] = dict()
-alive: bool = False
+_alive: bool = False
 
 
 # Jednotlivé akce hry
 
 # Akce startu hry
-def _start_action_execute(args: list[str]) -> str:
+def _start_action_execute(_: list[str]) -> str:
     """Zpracuje příkaz startu hry.
     """
     if is_alive():
         return "Hra již byla spuštěna."
     _initialize()
 
-    from .world import initialize as world_initialize
-    world_initialize()
-
     return START_STEP.message
 
 
-Start_action = Action(
+_Start_action = Action(
     name="",
     description="Zapne hru, pokud je vypnutá",
     execute=_start_action_execute
@@ -122,7 +134,7 @@ Start_action = Action(
 
 # Slovník přiřazující názvy příkazů akcím
 command_name_2_action: dict[str, "Action"] = {
-    "": Start_action,
+    "": _Start_action,
 }
 
 ###########################################################################q

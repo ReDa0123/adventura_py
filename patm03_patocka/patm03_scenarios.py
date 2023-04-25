@@ -14,7 +14,7 @@ from game23s.api.scen_types import *  # Především typu kroků
 ###########################################################################q
 ScenarioStep.next_index = 0  # Index prvního kroku za startem
 
-_place_details = {
+place_details = {
     'křižovatka':
         'křižovatka - poměrně rozlehlé pustá křižovatky.\n Stojí zde '
         'opuštěné auto a uzavčené dveře do tunelu.\n Je odsud vidět i '
@@ -118,7 +118,7 @@ HAPPY = Scenario(stHAPPY, (
                  bag=("žebřík",),
                  ),
     ScenarioStep(tsGOTO, 'Jdi křižovatka',  # Zadaný příkaz
-                 _goto_first_part + _place_details['křižovatka'],
+                 _goto_first_part + place_details['křižovatka'],
                  place='křižovatka',
                  neighbors=('smetiště', 'auto'),
                  items=('rozbité_auto',),
@@ -132,7 +132,7 @@ HAPPY = Scenario(stHAPPY, (
                  bag=(),
                  ),
     ScenarioStep(tsGOTO, 'Jdi smetiště',  # Zadaný příkaz
-                 _goto_first_part + _place_details['smetiště'],
+                 _goto_first_part + place_details['smetiště'],
                  place='smetiště',
                  neighbors=('křižovatka',),
                  items=(),
@@ -163,7 +163,7 @@ HAPPY = Scenario(stHAPPY, (
                  bag=('páčidlo', 'lano'),
                  ),
     ScenarioStep(tsGOTO, 'Jdi křižovatka',  # Zadaný příkaz
-                 _goto_first_part + _place_details['křižovatka'],
+                 _goto_first_part + place_details['křižovatka'],
                  place='křižovatka',
                  neighbors=('smetiště', 'auto'),
                  items=('rozbité_auto', 'žebřík'),
@@ -185,7 +185,7 @@ HAPPY = Scenario(stHAPPY, (
                  sets={"items.used": 1, },
                  ),
     ScenarioStep(tsGOTO, 'Jdi tunel',  # Zadaný příkaz
-                 _goto_first_part + _place_details['tunel'],
+                 _goto_first_part + place_details['tunel'],
                  place='tunel',
                  neighbors=('křižovatka', 'benzínka'),
                  items=(),
@@ -209,7 +209,7 @@ HAPPY = Scenario(stHAPPY, (
                  bag=('lano', 'raketa'),
                  ),
     ScenarioStep(tsGOTO, 'Jdi benzínka',  # Zadaný příkaz
-                 _goto_first_part + _place_details['benzínka'],
+                 _goto_first_part + place_details['benzínka'],
                  place='benzínka',
                  neighbors=('tunel', 'most', 'kanál'),
                  items=('nádrž',),
@@ -230,14 +230,14 @@ HAPPY = Scenario(stHAPPY, (
                  bag=(),
                  ),
     ScenarioStep(tsGOTO, 'Jdi tunel',  # Zadaný příkaz
-                 _goto_first_part + _place_details['tunel'],
+                 _goto_first_part + place_details['tunel'],
                  place='tunel',
                  neighbors=('křižovatka', 'benzínka'),
                  items=(),
                  bag=(),
                  ),
     ScenarioStep(tsGOTO, 'Jdi křižovatka',  # Zadaný příkaz
-                 _goto_first_part + _place_details['křižovatka'],
+                 _goto_first_part + place_details['křižovatka'],
                  place='křižovatka',
                  neighbors=('smetiště', 'auto', 'tunel'),
                  items=('rozbité_auto', 'žebřík'),
@@ -251,21 +251,21 @@ HAPPY = Scenario(stHAPPY, (
                  bag=('žebřík',),
                  ),
     ScenarioStep(tsGOTO, 'jdi tunel',  # Zadaný příkaz
-                 _goto_first_part + _place_details['tunel'],
+                 _goto_first_part + place_details['tunel'],
                  place='tunel',
                  neighbors=('křižovatka', 'benzínka'),
                  items=(),
                  bag=('žebřík',),
                  ),
     ScenarioStep(tsGOTO, 'Jdi benzínka',  # Zadaný příkaz
-                 _goto_first_part + _place_details['benzínka'],
+                 _goto_first_part + place_details['benzínka'],
                  place='benzínka',
                  neighbors=('tunel', 'most', 'kanál'),
                  items=('nádrž', 'lano', 'raketa'),
                  bag=('žebřík',),
                  ),
     ScenarioStep(tsGOTO, 'Jdi kanál',  # Zadaný příkaz
-                 _goto_first_part + _place_details['kanál'],
+                 _goto_first_part + place_details['kanál'],
                  place='kanál',
                  neighbors=(),
                  items=('hák',),
@@ -294,7 +294,7 @@ HAPPY = Scenario(stHAPPY, (
                  bag=('hák',),
                  ),
     ScenarioStep(tsGOTO, 'Jdi benzínka',  # Zadaný příkaz
-                 _goto_first_part + _place_details['benzínka'],
+                 _goto_first_part + place_details['benzínka'],
                  place='benzínka',
                  neighbors=('tunel', 'most', 'kanál'),
                  items=('nádrž', 'lano', 'raketa'),
@@ -315,7 +315,7 @@ HAPPY = Scenario(stHAPPY, (
                  bag=('hák', 'lano', 'raketa'),
                  ),
     ScenarioStep(tsGOTO, 'Jdi most',  # Zadaný příkaz
-                 _goto_first_part + _place_details['most'],
+                 _goto_first_part + place_details['most'],
                  place='most',
                  neighbors=('benzínka',),
                  items=(),
@@ -352,7 +352,7 @@ HAPPY = Scenario(stHAPPY, (
                  sets={"items.used": 3, },
                  ),
     ScenarioStep(tsGOTO, 'Jdi autoopravna',  # Zadaný příkaz
-                 _goto_first_part + _place_details['autoopravna'],
+                 _goto_first_part + place_details['autoopravna'],
                  place='autoopravna',
                  neighbors=('most',),
                  items=('raketomet',),
@@ -396,7 +396,7 @@ HAPPY = Scenario(stHAPPY, (
                  sets={"items.used": 4, },
                  ),
     ScenarioStep(tsGOTO, 'Jdi balkon',  # Zadaný příkaz
-                 _goto_first_part + _place_details['balkon'],
+                 _goto_first_part + place_details['balkon'],
                  place='balkon',
                  neighbors=('autoopravna', 'křižovatka'),
                  items=('kanystr',),
@@ -410,14 +410,14 @@ HAPPY = Scenario(stHAPPY, (
                  bag=('kanystr',),
                  ),
     ScenarioStep(tsGOTO, 'Jdi křižovatka',  # Zadaný příkaz
-                 _goto_first_part + _place_details['křižovatka'],
+                 _goto_first_part + place_details['křižovatka'],
                  place='křižovatka',
                  neighbors=('smetiště', 'auto', 'tunel'),
                  items=('rozbité_auto',),
                  bag=('kanystr',),
                  ),
     ScenarioStep(tsGOTO, 'Jdi auto',  # Zadaný příkaz
-                 _goto_first_part + _place_details['auto'],
+                 _goto_first_part + place_details['auto'],
                  place='auto',
                  neighbors=('křižovatka',),
                  items=(),
@@ -545,7 +545,7 @@ MISTAKE = Scenario(stMISTAKES, (
                  bag=("žebřík",),
                  ),
     ScenarioStep(tsGOTO, 'Jdi smetiště',  # Zadaný příkaz
-                 _goto_first_part + _place_details['smetiště'],
+                 _goto_first_part + place_details['smetiště'],
                  place='smetiště',
                  neighbors=('křižovatka',),
                  items=(),
@@ -633,7 +633,7 @@ MISTAKE_NS = Scenario(stMISTAKES_NS, (
                  tests=["hidden_items_present"],
                  ),
     ScenarioStep(tsGOTO, "jdi smetiště",  # Zadaný příkaz
-                 _goto_first_part + _place_details['smetiště'],
+                 _goto_first_part + place_details['smetiště'],
                  place='smetiště',
                  neighbors=('křižovatka',),
                  items=(),
@@ -749,7 +749,7 @@ MISTAKE_NS = Scenario(stMISTAKES_NS, (
                  tests=["arguments_combinable"]
                  ),
     ScenarioStep(tsGOTO, "jdi křižovatka",  # Zadaný příkaz
-                 _goto_first_part + _place_details['smetiště'],
+                 _goto_first_part + place_details['smetiště'],
                  place='křižovatka',
                  neighbors=("smetiště", "auto"),
                  items=('rozbité_auto',),
@@ -771,7 +771,7 @@ MISTAKE_NS = Scenario(stMISTAKES_NS, (
                  sets={"items.used": 1, },
                  ),
     ScenarioStep(tsGOTO, "jdi tunel",  # Zadaný příkaz
-                 _goto_first_part + _place_details['tunel'],
+                 _goto_first_part + place_details['tunel'],
                  place='tunel',
                  neighbors=('křižovatka', 'benzínka'),
                  items=(),

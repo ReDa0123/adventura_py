@@ -9,6 +9,16 @@ dbg.start_mod(1, __name__)
 
 ###########################################################################q
 
+CAR_NAME = 'auto'
+CROSSROADS_NAME = 'křižovatka'
+JUNKYARD_NAME = 'smetiště'
+TUNNEL_NAME = 'tunel'
+GAS_STATION_NAME = 'benzínka'
+CANAL_NAME = 'kanál'
+BRIDGE_NAME = 'most'
+CAR_REPAIR_SHOP_NAME = 'autoopravna'
+BALCONY_NAME = 'balkon'
+
 
 class ANamed:
     """Instance představují objekty v prostorech či batohu.
@@ -49,6 +59,11 @@ class Item(ANamed):
         """
         return 1
 
+    def __repr__(self):
+        """Vrátí textový podpis dané instance.
+        """
+        return f"{self.__class__.__name__}({self.name})"
+
 
 ############################################################################
 
@@ -62,6 +77,8 @@ class AItemContainer:
         """
         self.initial_item_names = initial_item_names
         super().__init__(**args)
+        self._items = []
+        self._item_names = []
 
     def initialize(self) -> None:
         """Inicializuje kontejner na počátku hry.
@@ -71,8 +88,6 @@ class AItemContainer:
         Musí se jen dbát na to, aby se v obou seznamech vyskytoval objekt
         a jeho název na pozicích se stejným indexem.
         """
-        self._items = []
-        self._item_names = []
         for item_name in self.initial_item_names:
             item = Item(name=item_name)
             self._items.append(item)
@@ -82,9 +97,9 @@ class AItemContainer:
     def items(self) -> list[Item]:
         """Vrátí n-tici objektů v daném kontejneru.
         """
-        return self._items
+        return self._items[:]
 
-    def item(self, name: str) -> Item:
+    def item(self, name: str) -> Item | None:
         """Je-li v kontejneru objekt se zadaným názvem, vrátí jej,
         jinak vrátí None.
         """
@@ -122,7 +137,7 @@ class Bag(AItemContainer):
     součet vah objektů vyskytujících se v úložišti.
     """
 
-    def __init__(self, initial_item_names: tuple[str], **kwargs):
+    def __init__(self, initial_item_names: tuple[str] | tuple, **kwargs):
         """Definuje batoh jako kontejner h-objektů s omezenou kapacitou.
         """
         global BAG
@@ -143,6 +158,11 @@ class Bag(AItemContainer):
         """
         return 10
 
+    def __repr__(self):
+        """Vrátí textový podpis dané instance.
+        """
+        return f"{self.__class__.__name__}({self.items})"
+
 
 ############################################################################
 
@@ -158,22 +178,20 @@ class Place(ANamed, AItemContainer):
     """
 
     def __init__(self, name: str, description: str,
-                 initial_neighbor_names: tuple[str],
-                 initial_item_names: tuple[str]
+                 initial_neighbor_names: tuple[str, ...],
+                 initial_item_names: tuple[str, ...] | tuple
                  ):
         super().__init__(name=name, initial_item_names=initial_item_names)
         self._description = description
         self._initial_neighbor_names = initial_neighbor_names
+        self._neighbors = {}
 
     def initialize(self) -> None:
         """Inicializuje prostor na počátku hry,
         tj. nastaví počáteční sadu sousedů a objektů v prostoru.
         """
-        global _all_places
-        self._neighbors = tuple()
         for name in self._initial_neighbor_names:
-            print(f'Place.initialize: {name}')
-            self._neighbors += (_all_places[name],)
+            self._neighbors[name] = _all_places[name]
 
         super().initialize()
 
@@ -184,19 +202,24 @@ class Place(ANamed, AItemContainer):
         return self._description
 
     @property
-    def neighbors(self) -> tuple['Place']:
+    def neighbors(self) -> tuple['Place'] | tuple:
         """Vrátí n-tici aktuálních sousedů daného prostoru,
         tj. prostorů, do nichž je možno se z tohoto prostoru přesunout
         příkazem typu `TypeOfStep.GOTO`.
         """
-        return self._neighbors
+        return tuple(self._neighbors.values())
 
-    @property
-    def name_2_neighbor(self) -> tuple['Place']:
+    def name_2_neighbor(self, name: str) -> 'Place':
         """Vrátí odkaz na souseda se zadaným názvem.
         Není-li takový, vrátí `None`.
         """
-        raise Exception(f'Ještě není plně implementováno')
+        return self._neighbors.get(name.lower())
+
+    def __repr__(self):
+        """Vrátí textový podpis dané instance.
+        """
+        class_name = self.__class__.__name__
+        return f"{class_name}({self.name}, {self.items})"
 
 
 ############################################################################
@@ -207,23 +230,63 @@ def initialize() -> None:
         propojení jednotlivých prostorů a jejich výchozí obsah,
         nastaví výchozí aktuální prostor a inicializuje batoh.
         """
+    from .patm03_scenarios import place_details
     global _current_place, _all_places
     auto = Place(
-        name='auto',
-        description='auto - vaše auto bez benzínu, hlídá ho tvůj parťák.',
-        initial_neighbor_names=('křižovatka',),
-        initial_item_names=("žebřík",),
+        name=CAR_NAME,
+        description=place_details[CAR_NAME],
+        initial_neighbor_names=(CROSSROADS_NAME,),
+        initial_item_names=('žebřík',),
     )
-    _all_places['auto'] = auto
-    krizovatka = Place(
-        name='křižovatka',
-        description='křižovatka - poměrně rozlehlé pustá křižovatky.\n'
-        'Stojí zde  opuštěné auto a uzavčené dveře do tunelu.\n'
-        'Je odsud vidět i balkón, ale ten je moc vysoko.',
-        initial_neighbor_names=('auto',),
-        initial_item_names=()
+    _all_places[CAR_NAME] = auto
+    _all_places[CROSSROADS_NAME] = Place(
+        name=CROSSROADS_NAME,
+        description=place_details[CROSSROADS_NAME],
+        initial_neighbor_names=(JUNKYARD_NAME, CAR_NAME),
+        initial_item_names=('rozbité_auto',)
     )
-    _all_places['křižovatka'] = krizovatka
+    _all_places[JUNKYARD_NAME] = Place(
+        name=JUNKYARD_NAME,
+        description=place_details[JUNKYARD_NAME],
+        initial_neighbor_names=(CROSSROADS_NAME,),
+        initial_item_names=(),
+    )
+    _all_places[TUNNEL_NAME] = Place(
+        name=TUNNEL_NAME,
+        description=place_details[TUNNEL_NAME],
+        initial_neighbor_names=(CROSSROADS_NAME, GAS_STATION_NAME),
+        initial_item_names=(),
+    )
+    _all_places[GAS_STATION_NAME] = Place(
+        name=GAS_STATION_NAME,
+        description=place_details[GAS_STATION_NAME],
+        initial_neighbor_names=(TUNNEL_NAME, BRIDGE_NAME, CANAL_NAME),
+        initial_item_names=('nádrž',),
+    )
+    _all_places[CANAL_NAME] = Place(
+        name=CANAL_NAME,
+        description=place_details[CANAL_NAME],
+        initial_neighbor_names=(),
+        initial_item_names=('hák',),
+    )
+    _all_places[BRIDGE_NAME] = Place(
+        name=BRIDGE_NAME,
+        description=place_details[BRIDGE_NAME],
+        initial_neighbor_names=('benzínka',),
+        initial_item_names=(),
+    )
+    _all_places[CAR_REPAIR_SHOP_NAME] = Place(
+        name=CAR_REPAIR_SHOP_NAME,
+        description=place_details[CAR_REPAIR_SHOP_NAME],
+        initial_neighbor_names=(BRIDGE_NAME,),
+        initial_item_names=('raketomet',),
+    )
+    _all_places[BALCONY_NAME] = Place(
+        name=BALCONY_NAME,
+        description=place_details[BALCONY_NAME],
+        initial_neighbor_names=(CAR_REPAIR_SHOP_NAME, CROSSROADS_NAME),
+        initial_item_names=('kanystr',),
+    )
 
     for pl in _all_places.values():
         pl.initialize()
@@ -246,7 +309,7 @@ def places() -> tuple[Place]:
     return tuple(_all_places.values())
 
 
-def place(name: str) -> Place:
+def place(name: str) -> Place | None:
     """Vrátí prostor se zadaným názvem.
         Pokud ve hře takový není, vrátí None.
         """

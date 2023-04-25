@@ -206,8 +206,7 @@ class IPlace(INamed, IItemContainer, Protocol):
         raise Exception(f'Ještě není plně implementováno')
 
 
-    @property
-    def name_2_neighbor(self) -> tuple['IPlace']:
+    def name_2_neighbor(self, name: str) -> 'IPlace':
         """Vrátí odkaz na souseda se zadaným názvem.
         Není-li takový, vrátí `None`.
         """
@@ -287,6 +286,13 @@ class IActionManager(Protocol):
 
     def conditions(self) -> dict[str, object]:
         """Vrátí slovník s aktuálním nastavením příznaků.
+        """
+        raise Exception(f'Ještě není plně implementováno')
+
+
+    def tests(self) -> dict[str, object]:
+        """Vrátí slovník jehož hodnotami jsou testovací funkce
+        ověřující platnost vstupních podmínek pomocných akcí.
         """
         raise Exception(f'Ještě není plně implementováno')
 

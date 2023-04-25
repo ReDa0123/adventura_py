@@ -17,7 +17,6 @@ from .                  import Level, Verbosity, prVb, test_scenario
 
 
 
-
 # ############################################################################
 #
 # # Nastavení, zda se budou vypisovat stavy hry po provedení jednotlivých akcí

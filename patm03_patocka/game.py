@@ -11,36 +11,35 @@ dbg.start_mod(1, __name__)
 from game23s.api import BasicActions
 from game23s.api.interfaces import IAction, IBag, IWorld
 
+from . import actions
+from . import world as w
+
 
 def is_alive() -> bool:
     """Vrátí informaci o tom, je-li hra aktuálně spuštěná.
        Spuštěnou hru není možno pustit znovu.
        Chceme-li hru spustit znovu, musíme ji nejprve ukončit.
     """
-    from .actions import is_alive as alive
-    return alive()
+    return actions.is_alive()
 
 
 def execute_command(command: str) -> str:
     """Zpracuje zadaný příkaz a vrátí text zprávy pro uživatele.
     """
-    from .actions import execute_command
-    return execute_command(command)
+    return actions.execute_command(command)
 
 
 def stop() -> None:
     """Ukončí hru a uvolní alokované prostředky.
        Zadáním prázdného příkazu lze následně spustit hru znovu.
     """
-    from .actions import stop
-    stop()
+    actions.stop()
 
 
 def all_actions() -> tuple[IAction]:
     """Vrátí n-tici všech akcí použitelných ve hře.
     """
-    from .actions import command_name_2_action
-    return tuple(command_name_2_action.values())
+    return tuple(actions.command_name_2_action.values())
 
 
 def basic_actions() -> BasicActions:
@@ -59,22 +58,19 @@ def basic_actions() -> BasicActions:
 def bag() -> IBag:
     """Vrátí odkaz na batoh, do nějž bude hráč ukládat sebrané objekty.
     """
-    from .world import BAG
-    return BAG
+    return w.BAG
 
 
 def world() -> IWorld:
     """Vrátí odkaz na svět hry.
     """
-    from . import world
-    return world
+    return w
 
 
 def conditions() -> dict[str, object]:
     """Vrátí slovník s aktuálním nastavením příznaků.
     """
-    from .patm03_scenarios import START_STEP
-    return START_STEP.sets
+    return actions.conditions()
 
 
 def tests() -> dict[str, object]:

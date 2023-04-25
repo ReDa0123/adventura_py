@@ -147,7 +147,7 @@ def verify_all_actions() -> None:
         actions = GAME.all_actions()
     except Exception as ex:
         # Do hladiny ARCHITECTURE je povolené vyvolání výjimky
-        if LEVEL <= Level.ARCHITECTURE:  return
+        if LEVEL <= Level.WORLD:  return
         raise ex
 
 
@@ -168,8 +168,8 @@ def verify_tests() -> None:
     try:
         actions = GAME.tests()
     except Exception as ex:
-        # Do hladiny ARCHITECTURE je povolené vyvolání výjimky
-        if LEVEL <= Level.ARCHITECTURE:  return
+        # Do hladiny RUNNING je povolené vyvolání výjimky
+        if LEVEL < Level.RUNNING:  return
         raise ex
 
 
