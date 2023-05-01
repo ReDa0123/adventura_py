@@ -66,7 +66,7 @@ def self_test():
     Otestuje, zda stav projektu odpovídá zadané hladině rozpracovanosti.
     """
     import game23s.tests as gt
-    LEVEL = gt.Level.WORLD  # Nastavení hladiny rozpracovanosti aplikace
+    LEVEL = gt.Level.WHOLE  # Nastavení hladiny rozpracovanosti aplikace
 
     # Hladiny SUMMARY=0, DETAILS=1, STEPS=2, STEP_ATTR=3
     gt.VERBOSITY = gt.Verbosity.STEP_ATTR

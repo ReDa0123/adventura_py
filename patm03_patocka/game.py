@@ -39,7 +39,7 @@ def stop() -> None:
 def all_actions() -> tuple[IAction]:
     """Vrátí n-tici všech akcí použitelných ve hře.
     """
-    return tuple(actions.command_name_2_action.values())
+    return tuple(actions.command_name_2_action.values())[1:]  # 0. je ""
 
 
 def basic_actions() -> BasicActions:

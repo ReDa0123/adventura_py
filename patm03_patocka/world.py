@@ -6,7 +6,6 @@ import dbg
 
 dbg.start_mod(1, __name__)
 
-
 ###########################################################################q
 
 CAR_NAME = 'auto'
@@ -18,6 +17,8 @@ CANAL_NAME = 'kanál'
 BRIDGE_NAME = 'most'
 CAR_REPAIR_SHOP_NAME = 'autoopravna'
 BALCONY_NAME = 'balkon'
+
+MAX_CAPACITY = 10
 
 
 class ANamed:
@@ -48,16 +49,37 @@ class Item(ANamed):
     """Instance představují h-objekty v prostorech či batohu.
     """
 
-    def __init__(self, name: str, **args):
+    def __init__(self,
+                 name: str,
+                 movable: bool,
+                 usable_in: str | None,
+                 weight: int,
+                 **args):
         """Vytvoří h-objekt se zadaným názvem.
         """
+        self._movable = movable
+        self._usable_in = usable_in
+        self._weight = weight
         super().__init__(name=name, **args)
 
     @property
     def weight(self) -> int:
         """Vrátí váhu daného objektu.
         """
-        return 1
+        return self._weight
+
+    @property
+    def movable(self) -> bool:
+        """Vrátí informaci o tom, je-li objekt přenositelný.
+        """
+        return self._movable
+
+    @property
+    def usable_in(self) -> str | None:
+        """Vrátí název prostoru, v němž je možno daný objekt použít,
+        nebo None, není-li možno daný objekt nikde použít.
+        """
+        return self._usable_in
 
     def __repr__(self):
         """Vrátí textový podpis dané instance.
@@ -88,8 +110,14 @@ class AItemContainer:
         Musí se jen dbát na to, aby se v obou seznamech vyskytoval objekt
         a jeho název na pozicích se stejným indexem.
         """
+        from . import actions
         for item_name in self.initial_item_names:
-            item = Item(name=item_name)
+            item = Item(
+                name=item_name,
+                movable=item_name in items_weights,
+                usable_in=(actions.get_usable_in_dict().get(item_name, None)),
+                weight=items_weights.get(item_name, 0),
+            )
             self._items.append(item)
             self._item_names.append(item_name.lower())
 
@@ -143,6 +171,7 @@ class Bag(AItemContainer):
         global BAG
         if BAG:
             raise Exception(f'Více než jeden batoh')
+        self._capacity = 0
         super().__init__(initial_item_names, **kwargs)
         BAG = self
 
@@ -150,13 +179,38 @@ class Bag(AItemContainer):
         """Inicializuje batoh na počátku hry. Vedle inicializace obsahu
         inicializuje i informaci o zbývající kapacitě.
         """
+        self.clear()
         super().initialize()
 
     @property
     def capacity(self) -> int:
         """Vrátí kapacitu batohu.
         """
-        return 10
+        return self._capacity
+
+    def add_item(self, item: Item) -> bool:
+        """Přidá zadaný objekt do batohu a vrátí informaci o tom,
+        jestli se to podařilo.
+        """
+        if item.weight + self._capacity <= MAX_CAPACITY:
+            self._capacity += item.weight
+            return super().add_item(item)
+        return False
+
+    def remove_item(self, item_name: str) -> Item:
+        """Pokusí se odebrat objekt se zadaným názvem z batohu.
+        Vrátí odkaz na zadaný objekt nebo None.
+        """
+        item = super().remove_item(item_name)
+        if item:
+            self._capacity -= item.weight
+        return item
+
+    def clear(self) -> None:
+        """Vyprázdní batoh. """
+        self._capacity = 0
+        self._items = []
+        self._item_names = []
 
     def __repr__(self):
         """Vrátí textový podpis dané instance.
@@ -179,12 +233,14 @@ class Place(ANamed, AItemContainer):
 
     def __init__(self, name: str, description: str,
                  initial_neighbor_names: tuple[str, ...],
-                 initial_item_names: tuple[str, ...] | tuple
+                 initial_item_names: tuple[str, ...] | tuple,
+                 secret_item_names: tuple[str, ...] | None = None,
                  ):
         super().__init__(name=name, initial_item_names=initial_item_names)
         self._description = description
         self._initial_neighbor_names = initial_neighbor_names
         self._neighbors = {}
+        self._secret_item_names = secret_item_names
 
     def initialize(self) -> None:
         """Inicializuje prostor na počátku hry,
@@ -209,11 +265,29 @@ class Place(ANamed, AItemContainer):
         """
         return tuple(self._neighbors.values())
 
+    @property
+    def secret_items(self) -> tuple[str] | None:
+        """Vrátí n-tici tajných objektů v prostoru.
+        """
+        if self._secret_item_names is None:
+            return None
+        return tuple(self._secret_item_names)
+
+    def clear_secret_items(self) -> None:
+        """Vyprázdní seznam tajných objektů v prostoru.
+        """
+        self._secret_item_names = tuple()
+
     def name_2_neighbor(self, name: str) -> 'Place':
         """Vrátí odkaz na souseda se zadaným názvem.
         Není-li takový, vrátí `None`.
         """
         return self._neighbors.get(name.lower())
+
+    def add_neighbor(self, pl: 'Place') -> None:
+        """Přidá zadaný prostor mezi sousedy.
+        """
+        self._neighbors[pl.name] = pl
 
     def __repr__(self):
         """Vrátí textový podpis dané instance.
@@ -250,12 +324,14 @@ def initialize() -> None:
         description=place_details[JUNKYARD_NAME],
         initial_neighbor_names=(CROSSROADS_NAME,),
         initial_item_names=(),
+        secret_item_names=('páčidlo', 'lano'),
     )
     _all_places[TUNNEL_NAME] = Place(
         name=TUNNEL_NAME,
         description=place_details[TUNNEL_NAME],
         initial_neighbor_names=(CROSSROADS_NAME, GAS_STATION_NAME),
         initial_item_names=(),
+        secret_item_names=('raketa',),
     )
     _all_places[GAS_STATION_NAME] = Place(
         name=GAS_STATION_NAME,
@@ -295,6 +371,13 @@ def initialize() -> None:
     BAG.initialize()
 
 
+def set_current_place(pl: Place) -> None:
+    """Nastaví aktuální prostor.
+        """
+    global _current_place
+    _current_place = pl
+
+
 def current_place() -> Place:
     """Vrátí odkaz na aktuální prostor,
         tj. na prostor, v němž se hráč pravé nachází.
@@ -324,6 +407,18 @@ BAG: Bag | None = None
 BAG = Bag(())
 _current_place: Place | None = None
 _all_places: dict[str, Place] = {}
+
+items_weights = {
+    'žebřík': 10,
+    'páčidlo': 1,
+    'lano': 5,
+    'raketa': 4,
+    'hák': 1,
+    'raketomet': 6,
+    'nabitý_raketomet': 10,
+    'kanystr': 10,
+    'lano_s_hákem': 6,
+}
 
 ###########################################################################q
 dbg.stop_mod(1, __name__)
