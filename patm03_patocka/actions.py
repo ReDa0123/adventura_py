@@ -279,11 +279,12 @@ def _search_action_execute(args: list[str]) -> str:
     return_message = 'Našel jsi na zemi '
 
     for item in current_place_secret_items:
-        item_to_add = world.Item(name=item,
-                                 movable=True,
-                                 usable_in=get_usable_in_dict().get(item, None),
-                                 weight=world.items_weights.get(item, 0)
-                                 )
+        item_to_add = (
+            world.Item(name=item,
+                       movable=True,
+                       usable_in=get_usable_in_dict().get(item, None),
+                       weight=world.items_weights.get(item, 0)
+                       ))
         current_place.add_item(item_to_add)
         return_message += f'{item_to_add.name} (váha {item_to_add.weight}kg), '
 
