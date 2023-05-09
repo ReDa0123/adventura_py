@@ -77,7 +77,7 @@ def tests() -> dict[str, object]:
     """Vrátí slovník jehož hodnotami jsou testovací funkce
         ověřující platnost vstupních podmínek pomocných akcí.
         """
-    return {}
+    return actions.tests()
 
 
 ###########################################################################q

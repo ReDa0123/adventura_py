@@ -69,6 +69,15 @@ HELP = ("Ty a tvůj parťák jedete v autě pustinou v Americe zpustošené"
         "použij na mostě. V autoopravně najdeš raketomet a ten zkombinuj \n"
         "s raketou a použij vytvořenou věc k otevření balkonu. \n"
         "Vezmi kanystr s benzínem a vrať se k autu a vyhraj! \n"
+        "Příkazy: \njdi - přesun mezi prostory,\n"
+        "vezmi - vezme předmět ze země,\n"
+        "polož - položí předmět na zem z batohu,\n"
+        "? - zobrazí nápovědu,\n"
+        "konec - ukončí hru,\n"
+        "prozkoumej - najde skryté věci v prostoru,\n"
+        "použij - použije předmět z batohu,\n"
+        "zkombinuj - zkombinuje předměty z batohu a vytvoří nový,\n"
+        "naplň - vyhraje hru, pokud máš benzín u auta\n"
         )
 
 # Základní úspěšný scénář demonstrující průběh hry, při němž hráč
@@ -623,14 +632,6 @@ MISTAKE_NS = Scenario(stMISTAKES_NS, (
                  items=('rozbité_auto',),
                  bag=("žebřík",),
                  tests=["in_car"],
-                 ),
-    ScenarioStep(tsNS0_WrongCond, 'prozkoumej',  # Zadaný příkaz
-                 'V daném prostoru nejsou žádné skryté předměty',
-                 place='křižovatka',
-                 neighbors=('smetiště', 'auto'),
-                 items=('rozbité_auto',),
-                 bag=("žebřík",),
-                 tests=["hidden_items_present"],
                  ),
     ScenarioStep(tsGOTO, "jdi smetiště",  # Zadaný příkaz
                  goto_first_part + place_details['smetiště'],

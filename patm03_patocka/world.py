@@ -8,17 +8,17 @@ dbg.start_mod(1, __name__)
 
 ###########################################################################q
 
-CAR_NAME = 'auto'
-CROSSROADS_NAME = 'křižovatka'
-JUNKYARD_NAME = 'smetiště'
-TUNNEL_NAME = 'tunel'
-GAS_STATION_NAME = 'benzínka'
-CANAL_NAME = 'kanál'
-BRIDGE_NAME = 'most'
-CAR_REPAIR_SHOP_NAME = 'autoopravna'
-BALCONY_NAME = 'balkon'
+CAR_NAME: str = 'auto'
+CROSSROADS_NAME: str = 'křižovatka'
+JUNKYARD_NAME: str = 'smetiště'
+TUNNEL_NAME: str = 'tunel'
+GAS_STATION_NAME: str = 'benzínka'
+CANAL_NAME: str = 'kanál'
+BRIDGE_NAME: str = 'most'
+CAR_REPAIR_SHOP_NAME: str = 'autoopravna'
+BALCONY_NAME: str = 'balkon'
 
-MAX_CAPACITY = 10
+MAX_CAPACITY: int = 10
 
 
 class ANamed:
@@ -324,14 +324,14 @@ def initialize() -> None:
         description=place_details[JUNKYARD_NAME],
         initial_neighbor_names=(CROSSROADS_NAME,),
         initial_item_names=(),
-        secret_item_names=('páčidlo', 'lano'),
+        secret_item_names=secret_items[JUNKYARD_NAME],
     )
     _all_places[TUNNEL_NAME] = Place(
         name=TUNNEL_NAME,
         description=place_details[TUNNEL_NAME],
         initial_neighbor_names=(CROSSROADS_NAME, GAS_STATION_NAME),
         initial_item_names=(),
-        secret_item_names=('raketa',),
+        secret_item_names=secret_items[TUNNEL_NAME],
     )
     _all_places[GAS_STATION_NAME] = Place(
         name=GAS_STATION_NAME,
@@ -408,7 +408,7 @@ BAG = Bag(())
 _current_place: Place | None = None
 _all_places: dict[str, Place] = {}
 
-items_weights = {
+items_weights: dict[str, int] = {
     'žebřík': 10,
     'páčidlo': 1,
     'lano': 5,
@@ -418,6 +418,11 @@ items_weights = {
     'nabitý_raketomet': 10,
     'kanystr': 10,
     'lano_s_hákem': 6,
+}
+
+secret_items: dict[str, tuple[str, ...]] = {
+    JUNKYARD_NAME: ('páčidlo', 'lano'),
+    TUNNEL_NAME: ('raketa',),
 }
 
 ###########################################################################q
