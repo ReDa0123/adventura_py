@@ -55,20 +55,7 @@ def _initialize():
     world_initialize()
 
     global _flags, _alive
-    _flags = {"combinable": (frozenset({"hák", "lano"}),
-                             frozenset({"raketa", "raketomet"}),
-                             ),
-              "usable_in": {
-                  "páčidlo": "křižovatka",
-                  "žebřík": "kanál",
-                  "lano_s_hákem": "most",
-                  "nabitý_raketomet": "autoopravna",
-              },
-              "junkyard.searched": False,
-              "tunnel.searched": False,
-              "items.used": 0,
-              "items.created": 0,
-              }
+    _flags = get_initial_sets()
     _alive = True
 
 

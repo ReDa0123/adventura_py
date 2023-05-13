@@ -80,21 +80,24 @@ HELP = ("Ty a tvůj parťák jedete v autě pustinou v Americe zpustošené"
         "naplň - vyhraje hru, pokud máš benzín u auta\n"
         )
 
-initial_sets: dict[str, object] = {
-                     "combinable": (frozenset({"hák", "lano"}),
-                                    frozenset({"raketa", "raketomet"}),
-                                    ),
-                     "usable_in": {
-                         "páčidlo": "křižovatka",
-                         "žebřík": "kanál",
-                         "lano_s_hákem": "most",
-                         "nabitý_raketomet": "autoopravna",
-                     },
-                     "junkyard.searched": False,
-                     "tunnel.searched": False,
-                     "items.used": 0,
-                     "items.created": 0,
-                 }
+
+def get_initial_sets() -> dict[str, object]:
+    return {
+        "combinable": (frozenset({"hák", "lano"}),
+                       frozenset({"raketa", "raketomet"}),
+                       ),
+        "usable_in": {
+            "páčidlo": "křižovatka",
+            "žebřík": "kanál",
+            "lano_s_hákem": "most",
+            "nabitý_raketomet": "autoopravna",
+        },
+        "junkyard.searched": False,
+        "tunnel.searched": False,
+        "items.used": 0,
+        "items.created": 0,
+    }
+
 
 # Základní úspěšný scénář demonstrující průběh hry, při němž hráč
 # nezadává žádné chybné příkazy a dosáhne zadaného cíle.
@@ -108,7 +111,7 @@ HAPPY = Scenario(stHAPPY, (
                  neighbors=("křižovatka",),
                  items=("žebřík",),
                  bag=(),
-                 sets=initial_sets,
+                 sets=get_initial_sets(),
                  tests=[
                      "hidden_items_present",  # Jsou skryté věci v prostoru
                      "first_argument_in_bag",  # 1. argument je v batohu
