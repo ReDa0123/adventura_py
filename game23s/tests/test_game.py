@@ -10,6 +10,7 @@ dbg.start_mod(2, __name__)
 from ..api              import BasicActions, scen_types, state_of
 from ..api.interfaces   import IPortal, IGame
 from ..api.scenario     import ScenarioStep, Scenario
+from ..api.scen_types   import TypeOfStep, tsSUCCESS
 from .common.texts      import HASH_N, AFTER_N, N_AFTER_N
 from .common.errors     import error
 from .visitor           import Visitor
@@ -113,12 +114,16 @@ def _test_by(scenario:Scenario, visitor:Visitor) -> bool:
                   f'   Hra:     {_from_game}'
             raise Exception(msg)
     visitor.before_game_start(scenario)
-    for step in scenario.steps:
+    source = (scenario.steps if LEVEL > Level.WORLD
+                           else (scenario.steps[0], ))
+    for step in source:
         prVb(Verbosity.STEPS,
              f'{step.index}. {(command:=step.command)}\n{30*"-"}')
         try:
             visitor.before_entering_command(step)
-            if step.typeOfStep.name.startswith('tsNS_'):
+            if (step.typeOfStep.name.startswith('tsNS_')
+               or  (step.typeOfStep == tsSUCCESS)
+            ):
                 _test_needs(step)
             answer = GAME.execute_command(command)
             prVb(Verbosity.STEPS,     f'{answer}')
@@ -155,11 +160,12 @@ def _test_by(scenario:Scenario, visitor:Visitor) -> bool:
             _test_nothing_set()
         visitor.after_step_test(step, answer)
     visitor.after_game_end()
+    if LEVEL <= Level.WORLD:   GAME.stop()
     if GAME.is_alive():
         _error('Po ukončení scénáře není hra ukončena', step, (), ())
     return True
 
-
+    
 def _test_needs(step:ScenarioStep):
     """
     Prověří, zda jsou nastaveny příznaky požadované pro zadaný

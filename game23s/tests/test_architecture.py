@@ -146,8 +146,8 @@ def verify_all_actions() -> None:
     try:
         actions = GAME.all_actions()
     except Exception as ex:
-        # Do hladiny ARCHITECTURE je povolené vyvolání výjimky
-        if LEVEL <= Level.WORLD:  return
+        # Do hladiny MISTAKES je povolené vyvolání výjimky
+        if LEVEL <= Level.MISTAKES:  return
         raise ex
 
 
@@ -196,7 +196,7 @@ def verify_stop() -> None:
         no_exception('stop', ex)
 
 
-@dbg.prSEd()
+# @dbg.prSEd()
 def verify_bag() -> None:
     try:
         bag  = GAME.bag()
@@ -207,10 +207,11 @@ def verify_bag() -> None:
         no_exception('bag', ex)
     if bag == None:
         ERR('Metoda bag() nevrací požadovaný batoh')
-    dbg.prIN(1, 'Jdu kontrolovat implementaci')
+    # dbg.prIN(1, 'Jdu kontrolovat implementaci')
     # if not isinstance(bag, IBag):
     #     ERR('Třída batohů neimplementuje protokol IBag')
-    dbg.prIN(1, 'Implementace zkontrolována')
+    # TODO Zkontrolovat, proč to nechodí
+    # dbg.prIN(1, 'Implementace zkontrolována')
     
     set_message_start(bag)
     

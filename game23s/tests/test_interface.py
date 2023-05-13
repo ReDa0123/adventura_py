@@ -201,7 +201,7 @@ def _verify_author():
     requested     = (_author_ID + '_' + ascii_surname).lower()
     # print(f'{ascii_surname=}, {requested=}, {pkg_name=}')
     if pkg_name != requested:
-        ERROR (f'CHYBA: Název balíčku neodpovídá požadavkům\n' 
+        ERROR (f'CHYBA: Název balíčku neodpovídá požadavkům\n'
                f'       Požadováno: {requested!r}\n'
                f'       Obdrženo:   {pkg_name!r}'
                )

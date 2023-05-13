@@ -33,6 +33,7 @@ def error(reason:str, scenario:Scenario, step:ScenarioStep, game:IGame,
     NL = '\n'
     message = (f'{3*(70*"E"+NL)}'
                f'Při vyhodnocování {step.index}. kroku scénáře '
+               # f'{game.__package__.__name__} - '
                f'{scenario.name} byla odhalena chyba:\n{60*"-"}\n'
                f'Chybný objekt:    {reason}\n'
                f'Očekávaný objekt: {str(expected)}\n'
@@ -42,6 +43,8 @@ def error(reason:str, scenario:Scenario, step:ScenarioStep, game:IGame,
           f'{step}')
     print(f'\nObdržený stav hry po provedení testovaného příkazu:')
     print(f'{state_of(game)}')
+    from time import sleep
+    sleep(.5)   # Půl vteřiny počká, aby doběhly ostatní tisky
     raise Exception(f'{scenario.name}: {reason}')
 
 

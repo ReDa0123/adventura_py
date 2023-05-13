@@ -80,19 +80,7 @@ HELP = ("Ty a tvůj parťák jedete v autě pustinou v Americe zpustošené"
         "naplň - vyhraje hru, pokud máš benzín u auta\n"
         )
 
-# Základní úspěšný scénář demonstrující průběh hry, při němž hráč
-# nezadává žádné chybné příkazy a dosáhne zadaného cíle.
-HAPPY = Scenario(stHAPPY, (
-    START_STEP :=
-    ScenarioStep(tsSTART, '',  # Zadaný příkaz
-                 "Vítej!\n" + HELP +
-                 "Na začátku máš jen pěsti a otrhané oblečení.\n"
-                 "Pokud si nevíš rady, napiš ?, což zobrazí nápovědu.\n",
-                 place='auto',
-                 neighbors=("křižovatka",),
-                 items=("žebřík",),
-                 bag=(),
-                 sets={
+initial_sets: dict[str, object] = {
                      "combinable": (frozenset({"hák", "lano"}),
                                     frozenset({"raketa", "raketomet"}),
                                     ),
@@ -106,7 +94,21 @@ HAPPY = Scenario(stHAPPY, (
                      "tunnel.searched": False,
                      "items.used": 0,
                      "items.created": 0,
-                 },
+                 }
+
+# Základní úspěšný scénář demonstrující průběh hry, při němž hráč
+# nezadává žádné chybné příkazy a dosáhne zadaného cíle.
+HAPPY = Scenario(stHAPPY, (
+    START_STEP :=
+    ScenarioStep(tsSTART, '',  # Zadaný příkaz
+                 "Vítej!\n" + HELP +
+                 "Na začátku máš jen pěsti a otrhané oblečení.\n"
+                 "Pokud si nevíš rady, napiš ?, což zobrazí nápovědu.\n",
+                 place='auto',
+                 neighbors=("křižovatka",),
+                 items=("žebřík",),
+                 bag=(),
+                 sets=initial_sets,
                  tests=[
                      "hidden_items_present",  # Jsou skryté věci v prostoru
                      "first_argument_in_bag",  # 1. argument je v batohu

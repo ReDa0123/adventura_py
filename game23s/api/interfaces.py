@@ -206,7 +206,7 @@ class IPlace(INamed, IItemContainer, Protocol):
         raise Exception(f'Ještě není plně implementováno')
 
 
-    def name_2_neighbor(self, name: str) -> 'IPlace':
+    def name_2_neighbor(self, name:str,) -> 'IPlace':
         """Vrátí odkaz na souseda se zadaným názvem.
         Není-li takový, vrátí `None`.
         """

@@ -48,17 +48,17 @@ class Level(IntEnum):
     # Definované hladiny - na dané hladině se testuje:
     PORTAL      = 0 #_ Jenom initor balíčku
     HAPPY       = 1 #a Jen šťastný scénář
-    SCENARIOS   = 2 #b Čtyři základní scénáře: startovní, šťastný,
-                    #c chybový a chybový scénář nadstandardních akcí
-    ARCHITECTURE= 3 #d Přítomnost požadovaných objektů a metod
-    START       = 4 #e Hra úspěšně odstartuje
-    WORLD       = 5 #f Hra úspěšně vybuduje svůj svět
-    BASIC       = 6 #g Zprovoznění základních akcí při korektním zadání
-    MISTAKES    = 7 #h Základní akce jsou navržené robustní
-    RUNNING     = 8 #i Zprovoznění všech akcí při korektním zadání
-    WHOLE       = 9 #j Úspěšné zprovoznění hry, všechny akce jsou robustní
-    MODIFIED    =10 #k Aplikace s nadstavbovými úpravami pro obhajobu
-    EXTENDED    =11 #l Aplikace upravená pro obhajobu s dalším scénářem
+    SCENARIOS   = 2 #b Čtyři základní scénáře: 1. šťastný, 2. startovní,
+                    #  3. chybový a 4. chybový scénář pomocných akcí
+    ARCHITECTURE= 3 #c Přítomnost požadovaných objektů a metod
+    START       = 4 #d Hra úspěšně odstartuje
+    WORLD       = 5 #e Hra úspěšně vybuduje svůj svět
+    BASIC       = 6 #f Zprovoznění základních akcí při korektním zadání
+    MISTAKES    = 7 #g Základní akce jsou navržené robustní
+    RUNNING     = 8 #h Zprovoznění všech akcí při korektním zadání
+    WHOLE       = 9 #i Úspěšné zprovoznění hry, všechny akce jsou robustní
+    MODIFIED    =10 #j Aplikace s nadstavbovými úpravami pro obhajobu
+    EXTENDED    =11 #k Aplikace upravená pro obhajobu s dalším scénářem
     # TODO Rozmyslet přidání dalších úrovní
     # EXTENDED2   =12 #l Aplikace se dvěma dalšími scénáři
     # EXTENDED3   =13 #l Aplikace se třemi dalšími scénáři

@@ -55,7 +55,20 @@ def _initialize():
     world_initialize()
 
     global _flags, _alive
-    _flags = START_STEP.sets
+    _flags = {"combinable": (frozenset({"hák", "lano"}),
+                             frozenset({"raketa", "raketomet"}),
+                             ),
+              "usable_in": {
+                  "páčidlo": "křižovatka",
+                  "žebřík": "kanál",
+                  "lano_s_hákem": "most",
+                  "nabitý_raketomet": "autoopravna",
+              },
+              "junkyard.searched": False,
+              "tunnel.searched": False,
+              "items.used": 0,
+              "items.created": 0,
+              }
     _alive = True
 
 
@@ -290,7 +303,7 @@ def _search_action_execute(args: list[str]) -> str:
 
     current_place.clear_secret_items()
     global _flags
-    _flags[f'{current_place.name}.searched'] = True
+    _flags[f'{_place_translate[current_place.name]}.searched'] = True
     return return_message[:-2]
 
 
@@ -529,6 +542,7 @@ _tests_dict: dict[str, Callable[[tuple[str, ...]], bool]] = dict(
     has_gas_can=_has_gas_can
 )
 
+_place_translate: dict[str, str] = dict(smetiště="junkyard", tunel="tunnel")
 
 ###########################################################################q
 dbg.stop_mod(1, __name__)
