@@ -10,9 +10,10 @@ dbg.start_mod(2, __name__)
 from ..api              import BasicActions, scen_types, state_of
 from ..api.interfaces   import IPortal, IGame
 from ..api.scenario     import ScenarioStep, Scenario
-from ..api.scen_types   import TypeOfStep, tsSUCCESS
+from ..api.scen_types   import TypeOfStep, tsSUCCESS, SubtypeOfStep as STS
 from .common.texts      import HASH_N, AFTER_N, N_AFTER_N
 from .common.errors     import error
+from .common.utils      import containers_differs
 from .visitor           import Visitor
 from .                  import Level, Verbosity, prVb, test_scenario
 
@@ -40,15 +41,13 @@ def test_game_from(portal:IPortal, level:Level,
                     jak testovat útroby a chování hry
     :return: Metoda nic nevrací
     """
-    global LEVEL
-    LEVEL = level
-    visitor = visitor_class(portal, level)  # Vytvoření návštěvníka
-    n2s = portal.NAME_2_SCENARIO            # Získání slovníku scénářů
-    if not isinstance(n2s, dict):   # Není-li obdržená instance slovník,
-        n2s = n2s()                 # bude to funkce vracející slovník
-    global GAME
-    GAME = portal.GAME()
-    
+    n2s = portal.NAME_2_SCENARIO()            # Získání slovníku scénářů
+
+    global VISITOR;     VISITOR = visitor_class(portal, level)
+    global LEVEL;       LEVEL   = level
+    global HAPPY;       HAPPY   = n2s[HAPPY_]
+    global GAME;        GAME    = portal.GAME()
+
     # Vytvoříme n-tici scénářů, podle nichž se daná hladina testuje
     scen_list = []
     for scen_name in LEVEL_2_SCENARIOS[level]:
@@ -62,7 +61,7 @@ def test_game_from(portal:IPortal, level:Level,
     for s in scenarios:
         prVb(Verbosity.DETAILS,
              f'\n{2*(75*"T"+NL)}Test hry dle scénáře: {s.name}')
-        msg = 'OK' if _test_by(s, visitor) else 'ŠPATNĚ'
+        msg = 'OK' if _test_by(s) else 'ŠPATNĚ'
         result += f'{s.name}: {msg}\n'
         prVb(Verbosity.STEPS,
              f'{2*(75*"A"+NL)}Konec testu dle scénáře: {s.name}\n')
@@ -75,124 +74,135 @@ def test_game_from(portal:IPortal, level:Level,
 _from_scenario:list[str] = None
 _from_game    :list[str]  = None
 
-# @dbg.prSEda()
-def _test_by(scenario:Scenario, visitor:Visitor) -> bool:
+
+def _test_by(scenario:Scenario) -> bool:
     """
     Otestuje zadanou hru podle zadaného scénáře
     za pomoci zadaného návštěvníka.
     
     :param scenario:
-    :param visitor:
     :return:
     """
-
-    _error = lambda reason, step, expected, obtained: \
-             error(reason, scenario, step, GAME, expected, obtained)
-
-    # TODO Porovnat sloučení s containers_differs v modulu utils
-    # @dbg.prSEdr(msg='from tests.test_game._test_by')
-    def containers_differs(scen_cont:tuple[str],
-                           game_cont:tuple['INamed']) -> bool:
-        """Porovná názvy v kontejneru scen_cont s názvy objektů
-        v kontejneru game_cont bez ohledu na velikost písmen
-        a vrátí informaci o tom, zda se liší (liší se = True).
-        """
-        if not ('__iter__' in dir(game_cont)):
-            _error('objekt hry není kontejner', step, scen_cont, game_cont)
-        global _from_scenario, _from_game
-        _from_scenario = sorted([item     .lower() for item in scen_cont])
-        _from_game     = sorted([item.name.lower() for item in game_cont])
-        result = (_from_scenario != _from_game)
-        return result
-
-    # Zde začíná vlastní tělo funkce ======================================
-    step:ScenarioStep
+    global SCENARIO;    SCENARIO = scenario
+    global STEP;        STEP     = None
+    
     if LEVEL >= Level.RUNNING:
         if containers_differs(test_scenario.ALL_ACTIONS, GAME.all_actions()):
             msg = f'\nSeznamy definovaných akcí nesouhlasí\n' \
-                  f'   Scénáře: {_from_scenario}\n' \
-                  f'   Hra:     {_from_game}'
+                  f'   Scénáře: {containers_differs.from_scenario}\n' \
+                  f'   Hra:     {containers_differs.from_game}'
             raise Exception(msg)
-    visitor.before_game_start(scenario)
+    VISITOR.before_game_start(scenario)
     source = (scenario.steps if LEVEL > Level.WORLD
                            else (scenario.steps[0], ))
-    for step in source:
+    for STEP in source:
         prVb(Verbosity.STEPS,
-             f'{step.index}. {(command:=step.command)}\n{30*"-"}')
+             f'{STEP.index}. {(command:=STEP.command)}\n{30*"-"}')
+        _verify_before_step()
         try:
-            visitor.before_entering_command(step)
-            if (step.typeOfStep.name.startswith('tsNS_')
-               or  (step.typeOfStep == tsSUCCESS)
-            ):
-                _test_needs(step)
+            VISITOR.before_entering_command(STEP)
             answer = GAME.execute_command(command)
             prVb(Verbosity.STEPS,     f'{answer}')
             prVb(Verbosity.STEP_ATTR, f'{30*"-"}\n{state_of(GAME)}')
             prVb(Verbosity.STEPS,     f'{30*"="}\n')
         except Exception as ex:
             print(f'Při vykonávání příkazu '
-                  f'{step.index}. {(command:=step.command)}\n'
+                  f'{STEP.index}. {(command:=STEP.command)}\n'
                   f'byla vyhozena výjimka {ex}')
             raise ex
+        _verify_after_step(answer)
 
-        if step.typeOfStep == scen_types.tsSTART:
-            visitor.after_game_start(scenario)
-        visitor.before_step_test(step, answer)
-        if (not answer or
-            step.message.lower() != answer[:len(step.message)].lower()
-        ):
-            _error('odpověď hry', step, step.message, answer)
-        if step.typeOfStep == scen_types.tsNOT_START:
-            continue
-        current_place = GAME.world().current_place()
-        if step.place != current_place.name:
-            _error('aktuální prostor', step, step.place, current_place)
-        if containers_differs(step.neighbors, current_place.neighbors):
-            _error('aktuální sousedé', step, _from_scenario, _from_game)
-        if containers_differs(step.items, current_place.items):
-            _error('objekty v aktuálním prostoru', step, _from_scenario,
-                                                         _from_game)
-        if containers_differs(step.bag, GAME.bag().items):
-            _error('objekty v batohu', step, _from_scenario, _from_game)
-        if step.typeOfStep.name.startswith('tsNS´_'):
-            _test_sets() # Řádná nestandardní akce
-        else:
-            _test_nothing_set()
-        visitor.after_step_test(step, answer)
-    visitor.after_game_end()
+    VISITOR.after_game_end()
     if LEVEL <= Level.WORLD:   GAME.stop()
     if GAME.is_alive():
-        _error('Po ukončení scénáře není hra ukončena', step, (), ())
+        _ERR('Po ukončení scénáře není hra ukončena', (), ())
     return True
 
-    
-def _test_needs(step:ScenarioStep):
+
+def _verify_before_step():
     """
-    Prověří, zda jsou nastaveny příznaky požadované pro zadaný
-    testovaný krok aktivující nestandardní akci.
-    
-    :param step: Zadaný testovaný krok scénáře
-    :return: Nic nebo vyhození výjimky
+    Prověří stav hry před provedením následujícího pomocného kroku,
+    jmenovitě platnost podmínek a nastavení příznaků.
     """
+    subtype   = STEP.typeOfStep.subtype
+    arguments = STEP.command.split()
+    match subtype:
+        case STS.NONSTANDARD  |  STS.SUCCESS:
+            for flag in STEP.needs:
+                expected = STEP.needs[flag]
+                obtained = GAME.conditions()[flag]
+                if expected != obtained:
+                    _ERR(f'Neodpovídá hodnota příznaku {flag}',
+                         expected, obtained)
+            for test in STEP.tests:
+                if not (tst := GAME.tests()[test](arguments)):
+                    _ERR(f'Neodpovídá hodnota testu {test}()', True, tst)
+        case STS.MISTAKE_NS:
+            for key in STEP.needs:
+                wrong    = STEP.needs[key]
+                obtained = GAME.conditions()[key]
+                if wrong == obtained:
+                    _ERR(f'Hodnota příznaku {key} odpovídá',
+                         f'Nemá být {wrong}', obtained)
+            for test in STEP.tests:
+                if (tst := GAME.tests()[test](arguments)):
+                    _ERR(f'Test {test}() neměl projít', False, tst)
+    # Prověřeno
 
 
-def _test_sets(step:ScenarioStep):
+def _verify_after_step(answer:str):
     """
-    Prověří, zda nestandardní akce prověřovaná v zadaném testovacím kroku
-    nastavuje požadované příznaky.
-    
-    :param step: Zadaný testovaný krok scénáře
-    :return: Nic nebo vyhození výjimky
+    Prověří stav hry po provedení posledního kroku
+    a jeho shodu se stavem požadovaným ve scénáři.
     """
+    if STEP.typeOfStep == scen_types.tsSTART:
+        _verify_set()
+        VISITOR.after_game_start(SCENARIO)
+    VISITOR.before_step_test(STEP, answer)
+    if (not answer or
+            STEP.message.lower() != answer[:len(STEP.message)].lower()
+    ):
+        _ERR('odpověď hry', STEP.message, answer)
+    if STEP.typeOfStep == scen_types.tsNOT_START:
+        return      # U tohoto typu kroku není co dál prověřovat ==========>
+    current_place = GAME.world().current_place()
+    if STEP.place != current_place.name:
+        _ERR('aktuální prostor', STEP.place, current_place)
+    cd = containers_differs
+    if containers_differs(STEP.neighbors, current_place.neighbors):
+        _ERR('aktuální sousedé', cd.from_scenario, cd.from_game)
+    if containers_differs(STEP.items, current_place.items):
+        _ERR('objekty v aktuálním prostoru',
+             cd.from_scenario, cd.from_game)
+    if containers_differs(STEP.bag, GAME.bag().items):
+        _ERR('objekty v batohu', cd.from_scenario, cd.from_game)
+    if STEP.typeOfStep.subtype == STS.NONSTANDARD:
+        _verify_set()  # Řádná pomocná akce
+    else:
+        _verify_nothing_set()
+    VISITOR.after_step_test(STEP, answer)
 
 
-def _test_nothing_set():
+# @dbg.prSEda()
+def _verify_set():
     """
+    Prověří, že příznaky mají hodnoty požadované startovním krokem.
+    """
+    expected = STEP.sets
+    obtained = GAME.conditions()
+    for key in expected:
+        if ((key not in obtained)
+        or  (expected[key] != obtained[key])
+        ):
+            _ERR('Nastavené příznaky neodpovídají požadavkům',
+                 expected, obtained)
+
+
+def _verify_nothing_set():
+    """
+    PROZATÍM SE NEPROVĚŘUJE.
     Prověří, že v aktuálně testovaném kroku nebyl změněn žádný
-    z příznaků požadovaný pro aktivovatelnost nestandardních akcí.
-    
-    :param step: Zadaný testovaný krok scénáře
-    :return: Nic nebo vyhození výjimky
+    z příznaků požadovaný pro aktivovatelnost pomocných akcí.
     """
 
 
@@ -214,6 +224,18 @@ def _verify_is_alive(step:ScenarioStep, the_last:bool):
 
 
 ############################################################################
+# Globální proměnné nastavované na počátku testu
+VISITOR:Visitor     = None
+LEVEL:Level         = None
+HAPPY:Scenario      = None
+GAME :IGame         = None
+SCENARIO:Scenario   = None
+STEP:ScenarioStep   = None
+
+_ERR = lambda reason, expected, obtained: \
+              error(reason, SCENARIO, STEP, GAME, expected, obtained)
+
+
 # Následující proměnné jsou zavedeny pro zpřehlednění n-tice názvů
 # scénářů postupně používaných při testování na jednotlivých hladinách
 HAPPY_   = scen_types.HAPPY_NAME

@@ -34,7 +34,7 @@ LIMITS = (namedtuple('Limits', 'minSteps minPlaces minVisited minNSActions')
           (12,  # Minimální počet kroků scénáře HAPPY
             5,  # Minimální počet prostorů
             5,  # Minimální počet navštívených prostorů
-            2)) # Minimální počet vlastních (= nestandardních) akcí
+            2)) # Minimální počet vlastních (= pomocných) akcí
 
 
 

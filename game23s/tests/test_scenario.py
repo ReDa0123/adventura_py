@@ -391,13 +391,13 @@ def _check_nonstandard(name: str) -> None:
     """
     Při procházení šťastného scénáře zaeviduje kroky aktivující pomocné akce
     a při procházení chybových scénářů dohlédne na to, aby nebyly zadány
-    nové nestandardní kroky (pravděpodobně překlepem).
+    nové pomocné kroky (pravděpodobně překlepem).
     
     :param name: Název akce, jejíž krok testujeme
     """
     if (_scenario_in_test.type == stHAPPY) and (not _happy_tested):
         # Testujeme krok šťastného scénáře - v něm musejí být použity
-        # všechny druhy nestandardních kroků - tak použité zaregistrujeme
+        # všechny druhy pomocných kroků - tak použité zaregistrujeme
         st  = _current_step.typeOfStep.subtype
         SOS = SubtypeOfStep
         if (st == SOS.NONSTANDARD)  or  (st == SOS.SUCCESS):
@@ -407,14 +407,14 @@ def _check_nonstandard(name: str) -> None:
                 index = _current_step.typeOfStep.group.arg_count
                 _ns_actions_by_args[index].add(name)
     elif _scenario_in_test.type in (stMISTAKES, stMISTAKES_NS):
-        # Jestli se v non-happy scénáři nepoužívá nová nestandardní akce
+        # Jestli se v non-happy scénáři nepoužívá nová pomocná akce
         subtype = _current_step.typeOfStep.subtype
         if (subtype in (SubtypeOfStep.NONSTANDARD,
                         SubtypeOfStep.MISTAKE_NS) and
                 name not in _entered_ns_actions
         ):
             _ERR(f'Testujete {_scenario_in_test.type.description}\n'
-                 f'V něm mohou být jen nestandardní akce použité '
+                 f'V něm mohou být jen pomocné akce použité '
                  f've šťastném scénáři.\n'
                  f'Zadali jste nepoužitou akci {name}', steps=1)
 
@@ -611,11 +611,11 @@ def _process_step() -> None:
 # # @dbg.prSEda()
 # def _assign_group(lower_name, group_of_step):
 #     """Přiřadí zadanou akci skupině typů kroků, přičemž v případě
-#     nestandardních kroků tuto skupinu nejprve vytvoří.
+#     pomocných kroků tuto skupinu nejprve vytvoří.
 #     """
 #     # Pro danou akci ještě ještě nebyla zadána skupinu typů kroků
 #     if group_of_step.subtype == SubtypeOfStep.NONSTANDARD:
-#         # U nestandardních je to složitější, protože skupina musí
+#         # U pomocných je to složitější, protože skupina musí
 #         # obsahovat i název sdružené akce - bude se vytvářet ve scen_types
 #         group_of_step = create_extended_types_for(lower_name, group_of_step)
 #     else:
@@ -1027,7 +1027,7 @@ def _verifyType_HELP() -> None:
 # @dbg.prSEd()
 def _verifyType_NON_STANDARDx() -> None:
     """
-    Ověří, že tuto akci lze konzistentně zařadit mezi nestandardní,
+    Ověří, že tuto akci lze konzistentně zařadit mezi pomocné,
     že příkaz má požadovaný počet argumentů, a protože je to úspěšný krok,
     tak že jsou všechny podmínky splněny,
     u neúspěšných je pak uvedena jen jedna, a ta splněná není.
@@ -1194,7 +1194,7 @@ def _verifyType_UNMOVABLE() -> None:
 
 
 def _verifyType_WRONG_NS() -> None:
-    """Ověří, že tuto akci lze konzistentně zařadit mezi nestandardní,
+    """Ověří, že tuto akci lze konzistentně zařadit mezi pomocné,
     že příkaz má požadovaný počet argumentů (počet argumentů zadaný v TOS
     respektuje to, že zrovna chceme testovat chybění nějakého),
     a že plánovaný stav před zadáním příkazu a po jeho vykonání bude shodný.

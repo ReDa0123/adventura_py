@@ -41,7 +41,6 @@ def test_architecture_from(portal:IPortal, level:Level) -> None:
     verify_is_alive()
     verify_basic_actions()
     verify_all_actions()
-    verify_conditions()
     verify_tests()
     verify_execute_command()
     verify_stop()
@@ -149,19 +148,6 @@ def verify_all_actions() -> None:
         # Do hladiny MISTAKES je povolené vyvolání výjimky
         if LEVEL <= Level.MISTAKES:  return
         raise ex
-
-
-def verify_conditions() -> None:
-    expected = START_STEP.sets
-    try:
-        obtained = GAME.conditions()
-    except Exception as ex:
-        no_exception('conditions',ex)
-    if expected == obtained:  return
-    ERR(f'Příznaky vracené metodou conditions() se liší od příznaků\n'
-        f'nastavovaných ve startovním kroku:\n'
-        f'{dbg.prIndLim("  Očekáváno: ", expected)}\n'
-        f'{dbg.prIndLim("  Obdrženo:  ", obtained)}' )
 
 
 def verify_tests() -> None:

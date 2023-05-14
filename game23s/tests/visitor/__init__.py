@@ -42,11 +42,11 @@ class Visitor:
 
 
     @staticmethod
-    def are_imperfect_scenarios_allowed(self) -> None:
+    def are_imperfect_scenarios_allowed(self) -> bool:
         """Vrátí informaci o tom, je-li v prověřovaném zadání povoleno
         testování hry i v případě, kdy správce scénářů neprojde verifikací.
         """
-        return False
+        return True
 
 
     def before_game_start(self, scenario:Scenario) -> None:

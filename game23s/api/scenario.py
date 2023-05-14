@@ -45,7 +45,7 @@ def ScenarioStep(typeOfStep:TypeOfStep, command:str, message:str, place:str,
     items:tuple[str]        - Aktuální předměty v aktuálním prostoru
     bag:tuple[str]          - Aktuální předměty v batohu
     needs:dict[str,object]  - Požadované stavy pro spuštění
-    tests:dict[str,object]  - Odkazy na kód realizující složitější testy
+    tests:list[str]         - Názvy testů složitějších podmínek
     sets:dict[str,object]   - Nastavované stavy
     """
     result = ScenarioStep.new(ScenarioStep.next_index, typeOfStep, command,

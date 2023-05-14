@@ -478,33 +478,33 @@ def _hidden_items_present(_: tuple[str, ...]) -> bool:
 
 def _first_argument_in_bag(args: tuple[str, ...]) -> bool:
     """Zjistí, zda je první argument v batohu."""
-    return world.BAG.item(args[0]) is not None
+    return world.BAG.item(args[1].lower()) is not None
 
 
 def _second_argument_in_bag(args: tuple[str, ...]) -> bool:
     """Zjistí, zda je druhý argument v batohu."""
-    return world.BAG.item(args[1]) is not None
+    return world.BAG.item(args[2].lower()) is not None
 
 
 def _argument_usable(args: tuple[str, ...]) -> bool:
     """Zjistí, zda je první argument použitelný"""
-    return get_usable_in_dict().get(args[0], None) is not None
+    return get_usable_in_dict().get(args[1].lower(), None) is not None
 
 
 def _argument_usable_in(args: tuple[str, ...]) -> bool:
     """Zjistí, zda je druhý argument použitelný v prostoru."""
     return world.current_place().name == get_usable_in_dict().get(
-        args[0], None)
+        args[1].lower(), None)
 
 
 def _arguments_not_same(args: tuple[str, ...]) -> bool:
     """Zjistí, zda se argumenty nerovnají."""
-    return args[0] != args[1]
+    return args[1].lower() != args[2].lower()
 
 
 def _arguments_combinable(args: tuple[str, ...]) -> bool:
     """Zjistí, zda jsou argumenty kombinovatelné."""
-    return frozenset(args) in _combine_items_names
+    return frozenset(map(str.lower, args[1:])) in _combine_items_names
 
 
 def _in_car(_: tuple[str, ...]) -> bool:
@@ -512,7 +512,7 @@ def _in_car(_: tuple[str, ...]) -> bool:
     return world.current_place().name == world.CAR_NAME
 
 
-def _has_gas_can(_: tuple[str, ...]) -> bool:
+def _has_gas(_: tuple[str, ...]) -> bool:
     """Zjistí, zda má hráč kanystr."""
     return world.BAG.item("kanystr") is not None
 
@@ -526,7 +526,7 @@ _tests_dict: dict[str, Callable[[tuple[str, ...]], bool]] = dict(
     arguments_not_same=_arguments_not_same,
     arguments_combinable=_arguments_combinable,
     in_car=_in_car,
-    has_gas_can=_has_gas_can
+    has_gas=_has_gas,
 )
 
 _place_translate: dict[str, str] = dict(smetiště="junkyard", tunel="tunnel")
