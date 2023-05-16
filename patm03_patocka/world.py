@@ -1,6 +1,6 @@
 # Příliš žluťoučký kůň úpěl ďábelské ó - PŘÍLIŠ ŽLUŤOUČKÝ KŮŇ ÚPĚL ĎÁBELSKÉ Ó
 """
-Modul obsahující svět hry.
+Modul obsahující svět hry a příslušené třídy.
 """
 import dbg
 
@@ -207,7 +207,7 @@ class Bag(AItemContainer):
         return item
 
     def clear(self) -> None:
-        """Vyprázdní batoh. """
+        """Vyprázdní batoh a nastaví jeho kapacitu na nulu."""
         self._capacity = 0
         self._items = []
         self._item_names = []
@@ -236,6 +236,10 @@ class Place(ANamed, AItemContainer):
                  initial_item_names: tuple[str, ...] | tuple,
                  secret_item_names: tuple[str, ...] | None = None,
                  ):
+        """Vytvoří nový prostor se zadaným názvem a popisem.
+        Počáteční sousedy a objekty v prostoru jsou zadány
+        jako n-tice jejich názvů.
+        """
         super().__init__(name=name, initial_item_names=initial_item_names)
         self._description = description
         self._initial_neighbor_names = initial_neighbor_names

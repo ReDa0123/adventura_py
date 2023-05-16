@@ -129,7 +129,9 @@ _alive: bool = False
 
 # Akce startu hry
 def _start_action_execute(_: list[str]) -> str:
-    """Zpracuje příkaz startu hry. """
+    """Zpracuje příkaz startu hry. Pokud je hra již spuštěna,
+    vrátí chybovou hlášku. Jinak inicializuje všechny potřebné objekty.
+    """
     if is_alive():
         return "Prázdný příkaz lze použít pouze pro start hry"
     _initialize()
@@ -146,7 +148,11 @@ _Start_action: Action = Action(
 
 # Akce sebrání předmětu
 def _take_action_execute(args: list[str]) -> str:
-    """Zpracuje příkaz sebrání předmětu."""
+    """Zpracuje příkaz sebrání předmětu. Zkontroluje počet parametrů,
+    zda je zadaný předmět v aktuálním prostoru, zda je předmět přenositelný a
+    zda se vejde do batohu.
+    Pokud je vše v pořádku, předmět se sebere do batohu.
+    """
     if len(args) == 0:
         return ('Nevím, co mám zvednout.\n'
                 'Je třeba zadat název zvedaného objektu.')
@@ -179,7 +185,10 @@ _Take_action: Action = Action(
 
 # Akce přechodu do jiného prostoru
 def _move_action_execute(args: list[str]) -> str:
-    """Zpracuje příkaz přechodu do jiného prostoru."""
+    """Zpracuje příkaz přechodu do jiného prostoru.
+    Zkontroluje počet parametrů a zda je zadaný prostor sousedem aktuálního.
+    Pokud je vše v pořádku, přesune hráče do zadaného prostoru.
+    """
     if len(args) == 0:
         return ('Nevím, kam mám jít.\n'
                 'Je třeba zadat název cílového prostoru.')
@@ -204,7 +213,10 @@ _Move_action: Action = Action(
 
 
 def _put_down_action_execute(args: list[str]) -> str:
-    """Zpracuje příkaz položení předmětu."""
+    """Zpracuje příkaz položení předmětu. Zkontroluje počet parametrů,
+    zda je zadaný předmět v batohu. Pokud je vše v pořádku, předmět se položí
+    do aktuálního prostoru.
+    """
     if len(args) == 0:
         return ('Nevím, co mám položit.\n'
                 'Je třeba zadat název pokládaného objektu.')
@@ -231,7 +243,8 @@ _Put_down_action: Action = Action(
 
 # Akce nápovědy
 def _help_action_execute(args: list[str]) -> str:
-    """Zpracuje příkaz nápovědy."""
+    """Zpracuje příkaz nápovědy. Vypíše nápovědu k použití hry.
+    """
     if len(args) > 0:
         return 'Příkaz ? nemá žádné parametry.'
 
@@ -247,7 +260,8 @@ _Help_action: Action = Action(
 
 # Akce ukončení hry
 def _end_action_execute(args: list[str]) -> str:
-    """Zpracuje příkaz ukončení hry."""
+    """Zpracuje příkaz ukončení hry. Ukončí hru.
+    """
     if len(args) > 0:
         return 'Příkaz konec nemá žádné parametry.'
 
@@ -264,7 +278,11 @@ _End_action: Action = Action(
 
 # Akce prozkoumání
 def _search_action_execute(args: list[str]) -> str:
-    """Zpracuje příkaz prozkoumání."""
+    """Zpracuje příkaz prozkoumání. Zkontroluje počet parametrů,
+    zde jsou skryté předměty v aktuálním prostoru a zda už je hráč
+    prozkoumal. Pokud je vše v pořádku, předměty se přidají do aktuálního
+    prostoru. Změní také příznak prostoru.
+    """
     if len(args) > 0:
         return 'Příkaz prozkoumej nemá žádné parametry.'
 
@@ -303,7 +321,11 @@ _Search_action: Action = Action(
 
 # Akce použití předmětu
 def _use_action_execute(args: list[str]) -> str:
-    """Zpracuje příkaz použití předmětu."""
+    """Zpracuje příkaz použití předmětu. Zkontroluje počet parametrů,
+    zda je zadaný předmět v batohu a zda je možné ho použít v aktuálním
+    prostoru. Pokud je vše v pořádku, předmět se použije a zavolá se
+    funkce pro zpracování použití předmětu. Změní se také příznak braní.
+    """
     if len(args) == 0:
         return 'Nevím, co chceš použít'
 
@@ -336,7 +358,12 @@ _Use_action: Action = Action(
 
 # Akce kombinace předmětů
 def _combine_action_execute(args: list[str]) -> str:
-    """Zpracuje příkaz kombinace předmětů."""
+    """Zpracuje příkaz kombinace předmětů. Zkontroluje počet parametrů,
+    zda nejsou zadané dva stejné předměty, zda jsou předměty v batohu a
+    jestli se dají spolu zkombinovat. Pokud je vše v pořádku, předměty
+    se zkombinují, odeberou se z batohu a přidá se nový předmět do batohu.
+    Změní se také příznak kombinace.
+    """
     if len(args) != 2:
         return "Zadej dva předměty, které chceš zkombinovat"
 
@@ -386,7 +413,10 @@ _Combine_action: Action = Action(
 
 # Akce výhry
 def _win_action_execute(args: list[str]) -> str:
-    """Zpracuje příkaz výhry."""
+    """Zpracuje příkaz výhry. Zkontroluje počet parametrů a zda je hráč
+    u auta a má u sebe v batohu kanystr. Pokud je vše v pořádku, hra hončí
+    a hráč vyhrál.
+    """
     if len(args) > 0:
         return 'Příkaz naplň nemá žádné parametry.'
 
@@ -424,7 +454,9 @@ command_name_2_action: dict[str, Action] = {
 
 # Akce použití předmětu
 def _use_crowbar() -> str:
-    """Zpracuje použití páčidla."""
+    """Zpracuje použití páčidla. Přidá do aktuálního prostoru sousední
+    prostor s názvem "tunel".
+    """
     world.current_place().add_neighbor(world.place(world.TUNNEL_NAME))
     return ('Páčidlo se rozpadlo na kousky, ale otevřel si dveře do '
             'tunelu.\n'
@@ -432,7 +464,9 @@ def _use_crowbar() -> str:
 
 
 def _use_ladder() -> str:
-    """Zpracuje použití žebříku."""
+    """Zpracuje použití žebříku. Přidá do aktuálního prostoru sousední
+    prostor s názvem "benzínka".
+    """
     world.current_place().add_neighbor(world.place(world.GAS_STATION_NAME))
     return ('Použil si žebřík:\n'
             'Nyní se můžeš dostat zpět z kanálu.\n'
@@ -440,7 +474,9 @@ def _use_ladder() -> str:
 
 
 def _use_rope_with_hook() -> str:
-    """Zpracuje použití lana s hákem."""
+    """Zpracuje použití lana s hákem. Přidá do aktuálního prostoru sousední
+    prostor s názvem "autoopravna".
+    """
     world.current_place().add_neighbor(world.place(world.CAR_REPAIR_SHOP_NAME))
     return ('Použil si lano_s_hákem:\n'
             'Nyní se můžeš přehoupnout přes rozpadlý most.\n'
@@ -448,7 +484,9 @@ def _use_rope_with_hook() -> str:
 
 
 def _use_rocket_launcher() -> str:
-    """Zpracuje použití nabitý raketomet."""
+    """Zpracuje použití nabitý raketomet. Přidá do aktuálního prostoru sousední
+    prostor s názvem "balkon".
+    """
     world.current_place().add_neighbor(world.place(world.BALCONY_NAME))
     return ('Použil si nabitý_raketomet:\n'
             'Rozbil si dveře na balkon.\n'
