@@ -66,14 +66,16 @@ def self_test():
     Otestuje, zda stav projektu odpovídá zadané hladině rozpracovanosti.
     """
     import game23s.tests as gt
-    LEVEL = gt.Level.WHOLE  # Nastavení hladiny rozpracovanosti aplikace
+    LEVEL = gt.Level.MODIFIED  # Nastavení hladiny rozpracovanosti aplikace
 
     # Hladiny SUMMARY=0, DETAILS=1, STEPS=2, STEP_ATTR=3
     gt.VERBOSITY = gt.Verbosity.STEP_ATTR
 
     from importlib import import_module
     me = import_module(__package__)   # Importuje modul svého balíčku
-    gt.test(me, LEVEL)        # Testuje implementaci na nastavené hladině
+    from game23s.tests.visitor.vma_notentered \
+        import Visitor_NotEntered as visitor
+    gt.test(me, LEVEL, visitor)  # Testuje implementaci na nastavené hladině
 
 
 # Test spustíte nastavením požadované hladiny a zadáním příkazů:

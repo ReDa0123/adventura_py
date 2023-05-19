@@ -20,18 +20,31 @@ def execute_command(command: str) -> str:
     Vrátí odpověď hry na zadaný příkaz.
     """
     command_split = command.lower().split()
+    all_actions = \
+        [f"'{x}'" for x in sorted(list(command_name_2_action.keys())[1:])]
     if len(command_split) == 0:
-        return command_name_2_action[''].execute([])
+        return command_name_2_action[''].execute([]) + \
+            f"\n§Dosud nezadáno: [{', '.join(all_actions)}]"
+
+    action_name = command_split[0]
+
+    global _used_actions
+    _used_actions.add(action_name)
+    used_actions_in_parentheses = {f"'{x}'" for x in _used_actions}
+
+    not_used_actions_str = \
+        ', '.join(sorted(list(set(all_actions) - used_actions_in_parentheses)))
+    second_part = f"\n§Dosud nezadáno: [{not_used_actions_str}]"
 
     if not is_alive():
         from .patm03_scenarios import WRONG_START
-        return WRONG_START.message
+        return WRONG_START.message + second_part
 
-    action_name = command_split[0]
     if action_name not in command_name_2_action:
-        return f"Tento příkaz neznám: {action_name}"
+        return f"Tento příkaz neznám: {action_name}" + second_part
 
-    return command_name_2_action[action_name].execute(command_split[1:])
+    return command_name_2_action[action_name].execute(command_split[1:]) \
+        + second_part
 
 
 def is_alive() -> bool:
@@ -54,9 +67,10 @@ def _initialize():
     from .world import initialize as world_initialize
     world_initialize()
 
-    global _flags, _alive
+    global _flags, _alive, _used_actions
     _flags = get_initial_sets()
     _alive = True
+    _used_actions = set()
 
 
 def stop() -> None:
@@ -569,5 +583,6 @@ _tests_dict: dict[str, Callable[[tuple[str, ...]], bool]] = dict(
 
 _place_translate: dict[str, str] = dict(smetiště="junkyard", tunel="tunnel")
 
+_used_actions: set[str] = set()
 ###########################################################################q
 dbg.stop_mod(1, __name__)
